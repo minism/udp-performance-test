@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "common.h"
 
 
@@ -21,7 +22,7 @@ int main()
 	while(1)
 	{
 		recvlen = recv_data(sock, &remote_addr, buf, COM_BUFSIZE);
-		printf("Recieve message from %d: %s\n", remote_addr.sin_addr.s_addr, buf);
+		printf("Recieve %d bytes\n", recvlen);
 	}
 
 	destroy_socket(sock);

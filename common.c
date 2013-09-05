@@ -39,9 +39,9 @@ void destroy_socket(int sock)
 }
 
 // Convenience wrappers
-int send_data(int sock, sa_in* remote_addr, const char* data)
+int send_data(int sock, sa_in* remote_addr, const char* data, int datalen)
 {
-	return sendto(sock, data, strlen(data), 0, (struct sockaddr*) remote_addr, sizeof(*remote_addr));
+	return sendto(sock, data, datalen, 0, (struct sockaddr*) remote_addr, sizeof(*remote_addr));
 }
 
 int recv_data(int sock, sa_in* remote_addr, unsigned char* buf, int bufsize)

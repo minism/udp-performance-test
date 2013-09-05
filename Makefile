@@ -1,4 +1,4 @@
-CC=clang
+CC=gcc
 
 all:
 	$(CC) client.c common.c -o bin/client
