@@ -16,13 +16,14 @@ int main()
 
 	sa_in remote_addr;
 	unsigned char buf[COM_BUFSIZE];
-	int recvlen;
+	int packet_num = 0;
+	int recvlen = 0;
 	printf("Listening on %d\n", COM_SERVER_PORT);
-	printf("b");
 	while(1)
 	{
 		recvlen = recv_data(sock, &remote_addr, buf, COM_BUFSIZE);
-		printf("Recieve %d bytes\n", recvlen);
+		packet_num++;
+		printf("Recieve packet %d\n", packet_num);
 	}
 
 	destroy_socket(sock);

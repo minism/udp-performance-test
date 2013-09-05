@@ -5,16 +5,11 @@
 #include "common.h"
 
 
-// Compute usleep interval given packet size and rate of transfer
-int get_sleep_interval(int packet_size, int kbps)
-{
-	return 1000 * 1000 * packet_size / (kbps * 1000);
-}
 
 void test_transmit(int sock, sa_in* remote_addr, const char* sink, int sink_len, int kbps, int interval)
 {
 	int packet_size = COM_TEST_PACKET_SIZE;
-	int sleep_interval = get_sleep_interval(packet_size, 1);
+	int sleep_interval = 1000 * 1000 * packet_size / (kbps * 1000);
 	int iterations = (interval * 1000 * 1000) / sleep_interval;
 	int sink_ptr = 0;
 	printf("Transmitting at %d kbps for %d seconds\n", kbps, interval);
