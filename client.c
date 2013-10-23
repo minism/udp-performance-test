@@ -1,28 +1,50 @@
 #include <sys/time.h>
+#include <time.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include "common.h"
 
 
+// Get difference between two time values in microseconds
+long get_delta_usec(const struct timeval* t0, const struct timeval* t1)
+{
+	return (t1->tv_sec - t0->tv_sec) * 1000000 + 
+  		    t1->tv_usec - t0->tv_usec;
+}
 
-void test_transmit(int sock, sa_in* remote_addr, const char* sink, int sink_len, int kbps, int interval)
+
+// Transmit data from a garbage `sink` at a rate of `kbps` for `duration` seconds
+void test_transmit(int sock, sa_in* remote_addr, const char* sink, int sink_len, int kbps, int duration)
 {
 	int packet_size = COM_TEST_PACKET_SIZE;
-	int sleep_interval = 1000 * 1000 * packet_size / (kbps * 1000);
-	int iterations = (interval * 1000 * 1000) / sleep_interval;
+	long delivery_interval_usec = 1000 * 1000 * packet_size / (kbps * 1000);
 	int sink_ptr = 0;
-	printf("Transmitting at %d kbps for %d seconds\n", kbps, interval);
-	int i;
-	for(i = 0; i < iterations; ++i)
+	struct timeval start_time, send_time, cur_time;
+	gettimeofday(&start_time, NULL);
+	printf("Transmitting at %d kbps for %d seconds\n", kbps, duration);
+	int count = 0;
+	while (1)
 	{
+		// Send packet
+		gettimeofday(&send_time, NULL);
 		send_data(sock, remote_addr, sink + sink_ptr, packet_size);
-		usleep(sleep_interval);
+
+		// Sleep the rest of the expected interval
+		gettimeofday(&cur_time, NULL);
+		long delta = get_delta_usec(&send_time, &cur_time); 
+		usleep(delivery_interval_usec - delta);
+
+		// Cycle through data sink
 		sink_ptr = (sink_ptr + packet_size) % (sink_len - packet_size);
+
+		// Loop until duration reached
+		long total_delta = get_delta_usec(&start_time, &cur_time);
+		if (total_delta >= duration * 1000 * 1000) 
+			break;
 	}
 }
 
-// Transmit data from a garbage `sink` at a rate of `kbps` for `interval` seconds
 
 int main()
 {
